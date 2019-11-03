@@ -24,6 +24,10 @@ public final class ImmutableLinkedList implements ImmutableList{
         return root;
     }
 
+    public void incrementSize() {
+        size += 1;
+    }
+
     @Override
     public ImmutableList add(Object e) {
         ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
@@ -36,12 +40,23 @@ public final class ImmutableLinkedList implements ImmutableList{
             currentTarget = currentTarget.getNext();
         }
         currentTarget.setNext(new Node(e));
+        linkedList.incrementSize();
         return linkedList;
     }
 
     @Override
-    public ImmutableList add(int index, Object e) {
-        return null;
+    public ImmutableList add(int index, Object e) throws IndexOutOfBoundsException {
+        if (index >= this.size()) {
+            throw new IndexOutOfBoundsException();
+        }
+        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
+        linkedList.incrementSize();
+        Node currentTarget = linkedList.getRoot();
+        for (int i = 0; i < index; i++) {
+            currentTarget = currentTarget.getNext();
+        }
+        currentTarget.setValue(e);
+        return linkedList;
     }
 
     @Override
@@ -76,7 +91,7 @@ public final class ImmutableLinkedList implements ImmutableList{
 
     @Override
     public int size() {
-        return 0;
+        return size;
     }
 
     @Override
