@@ -73,35 +73,47 @@ public final class ImmutableArrayList implements ImmutableList {
 
     @Override
     public ImmutableList addAll(int index, Object[] c) {
-        return null;
+        ImmutableArrayList arrayList = new ImmutableArrayList(this);
+        for (Object el : c) {
+            arrayList = (ImmutableArrayList) arrayList.add(index, el);
+            index += 1;
+        }
+        return arrayList;    }
+
+    @Override
+    public Object get(int index) throws IndexOutOfBoundsException {
+        checkIndex(index, size);
+        return data[index];
     }
 
     @Override
-    public Object get(int index) {
-        return null;
-    }
-
-    @Override
-    public ImmutableList remove(int index) {
-        return null;
+    public ImmutableList remove(int index) throws IndexOutOfBoundsException {
+        checkIndex(index, size);
+        Object[] elms = Arrays.copyOf(this.data, this.capacity);
+        for (int i = index; i < size(); i++) {
+            elms[i] = elms[i + 1];
+        }
+        ImmutableArrayList arrayList = new ImmutableArrayList(elms, size - 1);
+        return arrayList;
     }
 
     @Override
     public ImmutableList set(int index, Object e) throws IndexOutOfBoundsException {
         checkIndex(index, size);
-        ImmutableArrayList arrayList;
-        if (size == capacity) {
-            arrayList = new ImmutableArrayList(this);
-        } else {
-            arrayList = new ImmutableArrayList(this);
-        }
-        arrayList.getData()[index] = e;
+        Object[] elms = Arrays.copyOf(this.data, this.capacity);
+        elms[index] = e;
+        ImmutableArrayList arrayList = new ImmutableArrayList(elms, size);
         return arrayList;
     }
 
     @Override
     public int indexOf(Object e) {
-        return 0;
+        for (int i = 0; i < size; ++i) {
+            if (data[i].hashCode() == e.hashCode()) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -111,7 +123,7 @@ public final class ImmutableArrayList implements ImmutableList {
 
     @Override
     public ImmutableList clear() {
-        return null;
+        return new ImmutableArrayList(new Object[capacity], 0);
     }
 
     @Override
@@ -121,6 +133,19 @@ public final class ImmutableArrayList implements ImmutableList {
 
     @Override
     public Object[] toArray() {
-        return new Object[0];
+        return Arrays.copyOf(this.data, this.size);
+    }
+
+    @Override
+    public String toString() {
+        String output = "";
+        Object[] elms = Arrays.copyOf(this.data, this.capacity);
+        for (int i = 0; i < size; ++i) {
+            output += data[i].toString();
+            if (i != size - 1) {
+                output += " ";
+            }
+        }
+        return output;
     }
 }
