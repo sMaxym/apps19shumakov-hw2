@@ -1,7 +1,6 @@
 package ua.edu.ucu.collections.immutable;
 
 public class Node {
-
     private Node next;
     private Object value;
 

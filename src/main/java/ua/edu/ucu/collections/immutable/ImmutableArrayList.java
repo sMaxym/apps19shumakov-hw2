@@ -34,12 +34,17 @@ public final class ImmutableArrayList implements ImmutableList {
         return data;
     }
 
-    @Override
-    public ImmutableList add(Object e) {
+    private int calcCapacity(int size, int capacity) {
         int newCapacity = this.capacity;
         if (this.size == this.capacity) {
             newCapacity = this.capacity * 2;
         }
+        return newCapacity;
+    }
+
+    @Override
+    public ImmutableList add(Object e) {
+        int newCapacity = calcCapacity(size, capacity);
         Object[] elms = Arrays.copyOf(this.data, newCapacity);
         elms[this.size] = e;
         ImmutableArrayList arrayList = new ImmutableArrayList(elms, size + 1);
@@ -49,10 +54,7 @@ public final class ImmutableArrayList implements ImmutableList {
     @Override
     public ImmutableList add(int index, Object e) throws IndexOutOfBoundsException {
         checkIndex(index, size);
-        int newCapacity = this.capacity;
-        if (this.size == this.capacity) {
-            newCapacity = this.capacity * 2;
-        }
+        int newCapacity = calcCapacity(size, capacity);
         Object[] elms = Arrays.copyOf(this.data, newCapacity);
         for (int i = size; i > index; --i) {
             elms[i] = elms[i - 1];

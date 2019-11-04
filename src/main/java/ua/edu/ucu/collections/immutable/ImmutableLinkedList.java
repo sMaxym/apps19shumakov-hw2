@@ -10,8 +10,8 @@ public final class ImmutableLinkedList implements ImmutableList {
         this.size = 0;
     }
 
-    public ImmutableLinkedList(Object root) {
-        this.root = new Node(root);
+    public ImmutableLinkedList(Node root) {
+        this.root = root;
         this.size = 1;
     }
 
@@ -20,7 +20,7 @@ public final class ImmutableLinkedList implements ImmutableList {
         this.size = instance.size();
     }
 
-    public void checkIndex(int index) throws IndexOutOfBoundsException {
+    public void checkIndex(int index, int size) throws IndexOutOfBoundsException {
         if (index < 0 || index >= size()) {
             throw new IndexOutOfBoundsException();
         }
@@ -30,98 +30,70 @@ public final class ImmutableLinkedList implements ImmutableList {
         return root;
     }
 
-    public void setRoot(Node e) {
-        this.root = e;
-    }
-
     public void setSize(int size) {
         this.size = size;
     }
 
-    public void incrementSize() {
-        size += 1;
-    }
-
-    private ImmutableList addNode(Node n, int size) {
-        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
-        if (size == 0) {
-            return linkedList;
-        }
-        if (linkedList.getRoot() == null) {
-            linkedList = new ImmutableLinkedList(n.getValue());
-            return linkedList;
-        }
-        Node currentTarget = linkedList.getRoot();
-        for (int i = 1; i < linkedList.size(); i++) {
-            currentTarget = currentTarget.getNext();
-        }
-        currentTarget.setNext(n);
-        for (int i = 0; i < size; ++i) {
-            linkedList.incrementSize();
-        }
-        return linkedList;
-    }
-
-    private ImmutableList addNode(Node n, int index, int size) throws IndexOutOfBoundsException {
-        checkIndex(index);
-        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
-        if (size == 0) {
-            return linkedList;
-        }
-        Node currentTarget, address;
-        currentTarget = linkedList.getRoot();
-        for (int i = 1; i < index; i++) {
-            currentTarget = currentTarget.getNext();
-        }
-        address = currentTarget.getNext();
-        currentTarget.setNext(n);
-        for (int i = 0; i < size; ++i) {
-            linkedList.incrementSize();
-            currentTarget = currentTarget.getNext();
-        }
-        currentTarget.setNext(address);
-        return linkedList;
-    }
-
     @Override
     public ImmutableList add(Object e) {
-        return addNode(new Node(e), 1);
+        ImmutableLinkedList linkedList;
+        if (root == null) {
+            return new ImmutableLinkedList(new Node(e));
+        }
+        linkedList = new ImmutableLinkedList(this);
+        Node currentTarget = linkedList.getRoot();
+        while (currentTarget.getNext() != null) {
+            currentTarget = currentTarget.getNext();
+        }
+        currentTarget.setNext(new Node(e));
+        linkedList.setSize(linkedList.size + 1);
+        return linkedList;
     }
 
     @Override
     public ImmutableList add(int index, Object e) throws IndexOutOfBoundsException {
-        return addNode(new Node(e), index, 1);
-    }
-
-    private Node buildSequence(Object[] c) {
-        int len = c.length;
-        if (len == 0) {
-            return null;
+        checkIndex(index, size);
+        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
+        Node currentTarget = linkedList.getRoot();
+        if (index == 0) {
+            Node newRoot = new Node(e, currentTarget);
+            linkedList = new ImmutableLinkedList(newRoot);
+            linkedList.setSize(size + 1);
+            return linkedList;
         }
-        Node root = new Node(c[0]);
-        Node currentTarget = root;
-        for (int i = 1; i < len; ++i) {
-            currentTarget.setNext(new Node(c[i]));
+        for (int i = 0; i < index - 1; i++) {
             currentTarget = currentTarget.getNext();
         }
-        return root;
+        Node address = currentTarget.getNext();
+        Node toInsert = new Node(e, address);
+        currentTarget.setNext(toInsert);
+        linkedList.setSize(linkedList.size + 1);
+        return linkedList;
     }
 
     @Override
     public ImmutableList addAll(Object[] c) {
-        Node objSequence = buildSequence(c);
-        return addNode(objSequence, c.length);
+        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
+        for (Object el : c) {
+            linkedList = (ImmutableLinkedList) linkedList.add(el);
+        }
+        return linkedList;
     }
 
     @Override
-    public ImmutableList addAll(int index, Object[] c) {
-        Node objSequence = buildSequence(c);
-        return addNode(objSequence, index, c.length);
+    public ImmutableList addAll(int index, Object[] c) throws IndexOutOfBoundsException {
+        checkIndex(index, size);
+        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
+        for (Object el : c) {
+            linkedList = (ImmutableLinkedList) linkedList.add(index, el);
+            index += 1;
+        }
+        return linkedList;
     }
 
     @Override
     public Object get(int index) throws IndexOutOfBoundsException {
-        checkIndex(index);
+        checkIndex(index, size);
         Node currentTarget = getRoot();
         for (int i = 0; i < index; i++) {
             currentTarget = currentTarget.getNext();
@@ -130,27 +102,35 @@ public final class ImmutableLinkedList implements ImmutableList {
     }
 
     @Override
-    public ImmutableList remove(int index) {
-        checkIndex(index);
-        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
-        Node currentTarget = linkedList.getRoot();
-        for (int i = 0; i < index - 1; ++i) {
-            currentTarget = currentTarget.getNext();
+    public ImmutableList remove(int index) throws IndexOutOfBoundsException {
+        checkIndex(index, size);
+        Node currentTarget;
+        if (index == 0) {
+            currentTarget = root.getNext();
+        } else {
+            currentTarget = root;
+            for (int i = 0; i < index - 1; ++i) {
+                currentTarget = currentTarget.getNext();
+            }
+            Node address = currentTarget.getNext().getNext();
+            currentTarget.setNext(address);
+            currentTarget = root;
         }
-        currentTarget.setNext(currentTarget.getNext().getNext());
-        linkedList.setSize(linkedList.size() - 1);
+        ImmutableLinkedList linkedList = new ImmutableLinkedList(currentTarget);
+        linkedList.setSize(size - 1);
         return linkedList;
     }
 
     @Override
     public ImmutableList set(int index, Object e) {
-        checkIndex(index);
-        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
-        Node currentTarget = linkedList.getRoot();
+        checkIndex(index, size);
+        Node currentTarget = root;
         for (int i = 0; i < index; ++i) {
             currentTarget = currentTarget.getNext();
         }
         currentTarget.setValue(e);
+        ImmutableLinkedList linkedList = new ImmutableLinkedList(root);
+        linkedList.setSize(size);
         return linkedList;
     }
 
@@ -159,7 +139,7 @@ public final class ImmutableLinkedList implements ImmutableList {
         Node currentTarget = getRoot();
         int lookedIndex = -1;
         for (int i = 0; i < size(); i++) {
-            if (currentTarget.getValue() == e) {
+            if (currentTarget.getValue().hashCode() == e.hashCode()) {
                 lookedIndex = i;
                 break;
             }
@@ -209,29 +189,28 @@ public final class ImmutableLinkedList implements ImmutableList {
     }
 
     public ImmutableList addFirst(Object e) {
-        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
-        Node targetNode = linkedList.getRoot();
-        Node rootNode = new Node(e);
-        rootNode.setNext(targetNode);
-        linkedList.setRoot(rootNode);
+        ImmutableLinkedList linkedList = (ImmutableLinkedList) add(0, e);
         return linkedList;
     }
 
     public ImmutableList addLast(Object e) {
-        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
-        linkedList.add(e);
+        ImmutableLinkedList linkedList = (ImmutableLinkedList) add(e);
         return linkedList;
     }
 
     public Object getFirst() {
-        return getRoot().getValue();
+        return get(0);
     }
 
     public Object getLast() {
-        Node targetNode = getRoot();
-        for (int i = 1; i < size(); ++i) {
-            targetNode = targetNode.getNext();
-        }
-        return targetNode.getValue();
+        return get(size - 1);
+    }
+
+    public ImmutableList removeFirst() {
+        return remove(0);
+    }
+
+    public ImmutableList removeLast() {
+        return remove(size - 1);
     }
 }
