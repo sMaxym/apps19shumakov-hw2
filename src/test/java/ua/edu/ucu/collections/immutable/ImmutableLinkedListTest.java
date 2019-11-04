@@ -174,4 +174,37 @@ public class ImmutableLinkedListTest {
         ImmutableLinkedList addedIllNew = (ImmutableLinkedList) addedIll.addAll(1, c);
         assertEquals("25 26 27 28 29 10", addedIllNew.toString());
     }
+
+    @Test
+    public void TestAddFirst() {
+        ImmutableLinkedList ill = new ImmutableLinkedList(25);
+        ImmutableLinkedList addedIll = (ImmutableLinkedList) ill.add(10);
+        Object[] c = {26, 27, 28, 29};
+        ImmutableLinkedList addedIllNew = (ImmutableLinkedList) addedIll.addAll(1, c);
+        ImmutableLinkedList newList = (ImmutableLinkedList) addedIllNew.addFirst(1);
+        assertEquals("1 25 26 27 28 29", newList.toString());
+    }
+
+    @Test
+    public void TestAddLast() {
+        ImmutableLinkedList ill = new ImmutableLinkedList(25);
+        ImmutableLinkedList addedIll = (ImmutableLinkedList) ill.add(10);
+        assertEquals(10, addedIll.getRoot().getNext().getValue());
+    }
+
+    @Test
+    public void TestGetFirst() {
+        ImmutableLinkedList ill = new ImmutableLinkedList(25);
+        ImmutableLinkedList addedIll = (ImmutableLinkedList) ill.add(10);
+        ImmutableLinkedList addedIllNew = (ImmutableLinkedList) addedIll.add(12);
+        assertEquals(25, addedIll.getFirst());
+    }
+
+    @Test
+    public void TestGetLast() {
+        ImmutableLinkedList ill = new ImmutableLinkedList(25);
+        ImmutableLinkedList addedIll = (ImmutableLinkedList) ill.add(10);
+        ImmutableLinkedList addedIllNew = (ImmutableLinkedList) addedIll.add(12);
+        assertEquals(12, addedIllNew.getLast());
+    }
 }

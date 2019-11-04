@@ -1,6 +1,6 @@
 package ua.edu.ucu.collections.immutable;
 
-public final class ImmutableLinkedList implements ImmutableList{
+public final class ImmutableLinkedList implements ImmutableList {
 
     private Node root;
     private int size;
@@ -21,7 +21,7 @@ public final class ImmutableLinkedList implements ImmutableList{
     }
 
     public void checkIndex(int index) throws IndexOutOfBoundsException {
-        if (index < 0 || index >= size()){
+        if (index < 0 || index >= size()) {
             throw new IndexOutOfBoundsException();
         }
     }
@@ -206,5 +206,32 @@ public final class ImmutableLinkedList implements ImmutableList{
             }
         }
         return representation;
+    }
+
+    public ImmutableList addFirst(Object e) {
+        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
+        Node targetNode = linkedList.getRoot();
+        Node rootNode = new Node(e);
+        rootNode.setNext(targetNode);
+        linkedList.setRoot(rootNode);
+        return linkedList;
+    }
+
+    public ImmutableList addLast(Object e) {
+        ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
+        linkedList.add(e);
+        return linkedList;
+    }
+
+    public Object getFirst() {
+        return getRoot().getValue();
+    }
+
+    public Object getLast() {
+        Node targetNode = getRoot();
+        for (int i = 1; i < size(); ++i) {
+            targetNode = targetNode.getNext();
+        }
+        return targetNode.getValue();
     }
 }
