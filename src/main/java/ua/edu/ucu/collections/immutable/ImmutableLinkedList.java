@@ -16,12 +16,12 @@ public final class ImmutableLinkedList implements ImmutableList {
     }
 
     public ImmutableLinkedList(ImmutableLinkedList instance) {
-        this.root = instance.getRoot();
+        this.root = new Node(instance.getRoot());
         this.size = instance.size();
     }
 
     public void checkIndex(int index, int size) throws IndexOutOfBoundsException {
-        if (index < 0 || index >= size()) {
+        if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
         }
     }
@@ -52,7 +52,7 @@ public final class ImmutableLinkedList implements ImmutableList {
 
     @Override
     public ImmutableList add(int index, Object e) throws IndexOutOfBoundsException {
-        checkIndex(index, size);
+        checkIndex(index, size + 1);
         ImmutableLinkedList linkedList = new ImmutableLinkedList(this);
         Node currentTarget = linkedList.getRoot();
         if (index == 0) {
@@ -103,22 +103,21 @@ public final class ImmutableLinkedList implements ImmutableList {
 
     @Override
     public ImmutableList remove(int index) throws IndexOutOfBoundsException {
-        checkIndex(index, size);
-        Node currentTarget;
-        if (index == 0) {
-            currentTarget = root.getNext();
-        } else {
-            currentTarget = root;
-            for (int i = 0; i < index - 1; ++i) {
+        Node currentTarget = root;
+        ImmutableLinkedList ll = new ImmutableLinkedList();
+        for (int i = 0; i < size(); ++i) {
+            if (i == index) {
                 currentTarget = currentTarget.getNext();
+                continue;
             }
-            Node address = currentTarget.getNext().getNext();
-            currentTarget.setNext(address);
-            currentTarget = root;
+            if (ll.getRoot() == null) {
+                ll = new ImmutableLinkedList(new Node(currentTarget.getValue()));
+            } else {
+                ll = (ImmutableLinkedList) ll.add(currentTarget.getValue());
+            }
+            currentTarget = currentTarget.getNext();
         }
-        ImmutableLinkedList linkedList = new ImmutableLinkedList(currentTarget);
-        linkedList.setSize(size - 1);
-        return linkedList;
+        return ll;
     }
 
     @Override

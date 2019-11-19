@@ -9,6 +9,11 @@ public class Node {
         this.setNext(next);
     }
 
+    public Node(Node instance) {
+        this.value = instance.getValue();
+        this.next = instance.getNext();
+    }
+
     public Node(Object value) {
         this.setValue(value);
     }

@@ -8,6 +8,12 @@ public final class ImmutableArrayList implements ImmutableList {
     private int capacity;
     private Object[] data;
 
+    public ImmutableArrayList() {
+        this.size = 0;
+        this.capacity = 0;
+        this.data = new Object[0];
+    }
+
     public ImmutableArrayList(Object[] data, int size) {
         this.size = size;
         this.capacity = data.length;
@@ -36,7 +42,9 @@ public final class ImmutableArrayList implements ImmutableList {
 
     private int calcCapacity(int size, int capacity) {
         int newCapacity = this.capacity;
-        if (this.size == this.capacity) {
+        if (capacity == 0) {
+            newCapacity = 2;
+        } else if (this.size == this.capacity) {
             newCapacity = this.capacity * 2;
         }
         return newCapacity;
@@ -53,7 +61,7 @@ public final class ImmutableArrayList implements ImmutableList {
 
     @Override
     public ImmutableList add(int index, Object e) throws IndexOutOfBoundsException {
-        checkIndex(index, size);
+        checkIndex(index, size + 1);
         int newCapacity = calcCapacity(size, capacity);
         Object[] elms = Arrays.copyOf(this.data, newCapacity);
         for (int i = size; i > index; --i) {
@@ -92,7 +100,7 @@ public final class ImmutableArrayList implements ImmutableList {
     public ImmutableList remove(int index) throws IndexOutOfBoundsException {
         checkIndex(index, size);
         Object[] elms = Arrays.copyOf(this.data, this.capacity);
-        for (int i = index; i < size(); i++) {
+        for (int i = index; i < size() - 1; i++) {
             elms[i] = elms[i + 1];
         }
         ImmutableArrayList arrayList = new ImmutableArrayList(elms, size - 1);
